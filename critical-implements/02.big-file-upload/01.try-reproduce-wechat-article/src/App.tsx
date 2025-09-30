@@ -1,6 +1,10 @@
+import FileUpload from './components/FileUpload'
+
 function App() {
   return (
-    <>This is App.tsx</>
+    <div>
+      <FileUpload />
+    </div>
   )
 }
 
