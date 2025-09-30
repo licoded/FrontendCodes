@@ -1,54 +1,94 @@
-# React + TypeScript + Vite
+# 滚动锚定与懒加载演示项目
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个展示滚动锚定 (Scroll Anchoring) 和懒加载功能的 React + TypeScript 应用程序。
 
-Currently, two official plugins are available:
+## 项目概述
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+本项目是一个滚动锚定测试应用，主要用于演示和调试浏览器的滚动锚定功能以及图片懒加载机制。
 
-## Expanding the ESLint configuration
+## 核心功能
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. 滚动监控系统
+- **实时监控**：监控文档可滚动高度和当前滚动位置
+- **多重触发**：通过滚动事件、窗口大小变化和 DOM 变化检测
+- **时间戳日志**：每次变化都会在控制台输出带时间戳的详细信息
+- **格式示例**：`14:30:25 - 可滚动高度: 1200px, 当前滚动位置: 300px`
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 2. 懒加载图片组件
+- **智能预加载**：图片在距离视口 200px 时开始加载
+- **延时加载**：支持配置预加载延时（当前设置为 5 秒）
+- **占位图片**：加载前显示默认占位图
+- **Intersection Observer**：使用现代浏览器 API 实现高性能监听
+
+### 3. 滚动锚定演示
+- **内容布局**：多个 MDN 文档块 + 懒加载图片的组合
+- **锚定测试**：当图片加载完成改变页面高度时，浏览器会自动调整滚动位置
+- **中文文档**：包含滚动锚定相关的中文技术文档
+
+## 技术架构
+
+### 核心组件
+- **App.tsx**：主应用组件，包含滚动监控逻辑和页面布局
+- **LazyImg**：懒加载图片组件，支持自定义预加载距离和延时
+- **MDN**：静态文档组件，提供页面内容和滚动测试场景
+
+### 监控实现
+```typescript
+// 滚动信息监控
+const logScrollInfo = () => {
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
+  const currentScrollPosition = window.scrollY
+  console.log(`${timeString} - 可滚动高度: ${scrollableHeight}px, 当前滚动位置: ${currentScrollPosition}px`)
+}
+
+// 多重监听机制
+- scroll 事件监听
+- resize 事件监听
+- MutationObserver DOM 变化监听
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 开发环境
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 技术栈
+- **React 19** + **TypeScript**
+- **Vite** (构建工具)
+- **ESLint** (代码规范)
+- **pnpm** (包管理器)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### 启动命令
+```bash
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 构建生产版本
+pnpm build
+
+# 代码检查
+pnpm lint
 ```
+
+## 使用说明
+
+1. **启动项目**：运行 `pnpm dev` 启动开发服务器
+2. **打开控制台**：在浏览器中打开开发者工具的控制台
+3. **滚动测试**：滚动页面查看实时的滚动信息输出
+4. **懒加载测试**：等待 5 秒后图片加载，观察页面高度变化和滚动位置调整
+5. **锚定观察**：注意浏览器如何自动保持你当前查看的内容位置
+
+## 项目特色
+
+- 🔍 **实时监控**：完整的滚动状态监控系统
+- 🖼️ **智能懒加载**：高性能的图片懒加载实现
+- ⚓ **锚定演示**：直观展示浏览器滚动锚定功能
+- 📱 **响应式设计**：支持不同屏幕尺寸
+- 🛠️ **开发友好**：详细的日志输出和错误处理
+
+## 开发备注
+
+- 项目主要用于测试和演示滚动相关功能
+- 监控系统会在控制台输出详细的滚动信息
+- 懒加载组件支持自定义配置
+- 包含完整的 TypeScript 类型定义
