@@ -73,18 +73,24 @@ app.post('/api/check-file', async (req, res) => {
       });
     }
 
-    const filePath = path.join(UPLOAD_DIR, `${hash}_${name}`);
+    // 真正的秒传：只检查哈希，不管文件名
+    const filePath = path.join(UPLOAD_DIR, hash);
 
     try {
       const stats = await fs.stat(filePath);
       if (stats.size === size) {
         // 文件已存在且大小匹配，可以秒传
-        uploadedFiles.set(hash, {
+        // 记录文件名映射（支持多个文件名指向同一个文件）
+        uploadedFiles.set(`${hash}_${name}`, {
           name,
           size,
           path: filePath,
-          uploadTime: new Date()
+          hash,
+          uploadTime: new Date(),
+          isReference: true // 标记这是一个引用，不是原始文件
         });
+
+        console.log(`秒传成功: ${name} -> ${hash} (${size} bytes)`);
 
         return res.json({
           hash,
@@ -238,7 +244,7 @@ app.post('/api/merge-file', async (req, res) => {
     }
 
     const chunkDir = path.join(TEMP_DIR, fileHash);
-    const outputPath = path.join(UPLOAD_DIR, `${fileHash}_${fileName}`);
+    const outputPath = path.join(UPLOAD_DIR, fileHash); // 只用哈希命名
 
     // 检查所有分片是否存在
     const chunkPaths = [];
@@ -281,11 +287,24 @@ app.post('/api/merge-file', async (req, res) => {
     const stats = await fs.stat(outputPath);
 
     // 存储文件信息
+    // 1. 存储原始文件信息（以哈希为key）
     uploadedFiles.set(fileHash, {
       name: fileName,
       size: stats.size,
       path: outputPath,
-      uploadTime: new Date()
+      hash: fileHash,
+      uploadTime: new Date(),
+      isReference: false // 标记这是原始文件
+    });
+
+    // 2. 存储文件名映射（支持通过文件名查找）
+    uploadedFiles.set(`${fileHash}_${fileName}`, {
+      name: fileName,
+      size: stats.size,
+      path: outputPath,
+      hash: fileHash,
+      uploadTime: new Date(),
+      isReference: true // 标记这是引用
     });
 
     console.log(`文件合并完成: ${fileName} (${stats.size} bytes)`);
@@ -311,10 +330,13 @@ app.post('/api/merge-file', async (req, res) => {
 
 // 获取已上传文件列表
 app.get('/api/files', (req, res) => {
-  const files = Array.from(uploadedFiles.entries()).map(([hash, info]) => ({
-    hash,
-    ...info
-  }));
+  // 只显示非引用的文件（避免重复显示相同哈希的文件）
+  const files = Array.from(uploadedFiles.entries())
+    .filter(([key, info]) => !info.isReference)
+    .map(([hash, info]) => ({
+      hash,
+      ...info
+    }));
 
   res.json({
     success: true,
