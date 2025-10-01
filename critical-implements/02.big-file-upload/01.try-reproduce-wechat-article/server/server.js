@@ -344,6 +344,29 @@ app.get('/api/files', (req, res) => {
   });
 });
 
+// 调试接口：查看所有文件映射关系
+app.get('/api/debug/files', (req, res) => {
+  const allEntries = Array.from(uploadedFiles.entries()).map(([key, info]) => ({
+    key,
+    ...info,
+    keyType: key.includes('_') ? 'reference' : 'original'
+  }));
+
+  res.json({
+    success: true,
+    totalEntries: allEntries.length,
+    data: allEntries,
+    summary: {
+      originalFiles: allEntries.filter(entry => !entry.isReference).length,
+      references: allEntries.filter(entry => entry.isReference).length,
+      totalStorage: allEntries.reduce((sum, entry) => {
+        // 只计算原始文件的存储空间
+        return sum + (entry.isReference ? 0 : entry.size);
+      }, 0)
+    }
+  });
+});
+
 // 下载文件
 app.get('/api/download/:hash', async (req, res) => {
   try {
