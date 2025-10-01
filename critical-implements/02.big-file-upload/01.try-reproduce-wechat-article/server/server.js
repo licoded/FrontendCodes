@@ -40,17 +40,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // 配置 multer 用于处理文件上传
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const fileHash = req.body.fileHash;
-    const chunkDir = path.join(TEMP_DIR, fileHash);
-
-    // 确保分片目录存在
-    fs.mkdir(chunkDir, { recursive: true })
-      .then(() => cb(null, chunkDir))
-      .catch(err => cb(err));
+    // 使用临时目录，之后在处理逻辑中移动到正确位置
+    cb(null, TEMP_DIR);
   },
   filename: (req, file, cb) => {
-    const chunkIndex = req.body.chunkIndex;
-    cb(null, `chunk-${chunkIndex}`);
+    // 使用时间戳和随机数生成临时文件名
+    const tempName = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    cb(null, tempName);
   }
 });
 
@@ -188,6 +184,14 @@ app.post('/api/upload-chunk', upload.single('chunk'), handleMulterError, async (
         message: '分片哈希验证失败'
       });
     }
+
+    // 创建目标分片目录
+    const chunkDir = path.join(TEMP_DIR, fileHash);
+    await fs.mkdir(chunkDir, { recursive: true });
+
+    // 移动临时文件到正确位置
+    const finalPath = path.join(chunkDir, `chunk-${chunkIndex}`);
+    await fs.rename(req.file.path, finalPath);
 
     const processingTime = Date.now() - startTime;
     console.log(`分片上传成功: ${fileName} - chunk ${parseInt(chunkIndex) + 1}/${totalChunks} (${processingTime}ms)`);

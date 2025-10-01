@@ -88,6 +88,9 @@ export class FileUploader {
       const xhr = new XMLHttpRequest();
 
       return new Promise<UploadResponse>((resolve, reject) => {
+        // 设置超时时间 (30秒)
+        xhr.timeout = 30000;
+
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable && onProgress) {
             const progress = (event.loaded / event.total) * 100;
@@ -96,22 +99,38 @@ export class FileUploader {
         });
 
         xhr.addEventListener('load', () => {
+          console.log(`分片上传响应: status=${xhr.status}, response=${xhr.responseText}`);
+
           if (xhr.status === 200) {
             try {
               const response = JSON.parse(xhr.responseText);
               resolve(response);
-            } catch {
+            } catch (parseError) {
+              console.error('解析响应失败:', parseError, 'responseText:', xhr.responseText);
               reject(new Error('解析响应失败'));
             }
           } else {
-            reject(new Error(`上传失败: ${xhr.status}`));
+            console.error(`上传失败: ${xhr.status} ${xhr.statusText}`, xhr.responseText);
+            reject(new Error(`上传失败: ${xhr.status} ${xhr.statusText}`));
           }
         });
 
-        xhr.addEventListener('error', () => {
+        xhr.addEventListener('error', (event) => {
+          console.error('网络错误:', event);
           reject(new Error('网络错误'));
         });
 
+        xhr.addEventListener('timeout', () => {
+          console.error('请求超时');
+          reject(new Error('请求超时'));
+        });
+
+        xhr.addEventListener('abort', () => {
+          console.error('请求被中止');
+          reject(new Error('请求被中止'));
+        });
+
+        console.log(`开始上传分片 ${chunk.index}: ${chunk.size} bytes`);
         xhr.open('POST', `${API_BASE}/upload-chunk`);
         xhr.send(formData);
       });
