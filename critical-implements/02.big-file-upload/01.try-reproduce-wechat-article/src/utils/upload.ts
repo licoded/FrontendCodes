@@ -1,7 +1,7 @@
 import type { FileChunk, FileInfo, UploadResponse } from '../types/upload';
 import { calculateChunkHash, calculateFileHashIncremental } from './hash';
 
-const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB per chunk
+const CHUNK_SIZE = 25 * 1024 * 1024; // 25MB per chunk
 const API_BASE = 'http://localhost:3001/api';
 
 export class FileUploader {

@@ -34,8 +34,8 @@ await ensureDirectories();
 
 // 中间件
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // 配置 multer 用于处理文件上传
 const storage = multer.diskStorage({
@@ -53,7 +53,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB per chunk (larger than our 2MB chunks)
+    fileSize: 30 * 1024 * 1024, // 30MB per chunk (larger than our 25MB chunks)
     files: 1 // Only one file per request
   }
 });
@@ -137,7 +137,7 @@ const handleMulterError = (error, req, res, next) => {
       case 'LIMIT_FILE_SIZE':
         return res.status(400).json({
           success: false,
-          message: '分片文件过大，超过 5MB 限制'
+          message: '分片文件过大，超过 30MB 限制'
         });
       case 'LIMIT_FILE_COUNT':
         return res.status(400).json({
