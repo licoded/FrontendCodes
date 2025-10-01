@@ -13,10 +13,10 @@ const FileUpload = () => {
 
     const file = files[0];
 
-    // 限制文件大小（例如：100MB）
-    const maxSize = 100 * 1024 * 1024;
+    // 限制文件大小（例如：1GB）
+    const maxSize = 1 * 1024 * 1024 * 1024;
     if (file.size > maxSize) {
-      setMessage({ type: 'error', text: '文件大小不能超过 100MB' });
+      setMessage({ type: 'error', text: '文件大小不能超过 1GB' });
       return;
     }
 
@@ -106,7 +106,7 @@ const FileUpload = () => {
           拖拽文件到此处或点击选择文件
         </p>
         <p style={{ margin: '0', fontSize: '14px', color: '#6b7280' }}>
-          支持最大 100MB 的文件上传
+          支持最大 1GB 的文件上传
         </p>
       </div>
 
