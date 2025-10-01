@@ -34,7 +34,8 @@ await ensureDirectories();
 
 // 中间件
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 配置 multer 用于处理文件上传
 const storage = multer.diskStorage({
@@ -53,7 +54,13 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB per chunk (larger than our 2MB chunks)
+    files: 1 // Only one file per request
+  }
+});
 
 // 存储已上传文件的信息
 const uploadedFiles = new Map();
@@ -125,17 +132,49 @@ app.post('/api/check-file', async (req, res) => {
   }
 });
 
+// Multer 错误处理中间件
+const handleMulterError = (error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    console.error('Multer 错误:', error);
+
+    switch (error.code) {
+      case 'LIMIT_FILE_SIZE':
+        return res.status(400).json({
+          success: false,
+          message: '分片文件过大，超过 5MB 限制'
+        });
+      case 'LIMIT_FILE_COUNT':
+        return res.status(400).json({
+          success: false,
+          message: '文件数量超出限制'
+        });
+      default:
+        return res.status(400).json({
+          success: false,
+          message: '文件上传错误: ' + error.message
+        });
+    }
+  }
+  next(error);
+};
+
 // 上传分片
-app.post('/api/upload-chunk', upload.single('chunk'), async (req, res) => {
+app.post('/api/upload-chunk', upload.single('chunk'), handleMulterError, async (req, res) => {
+  const startTime = Date.now();
   try {
     const { chunkIndex, chunkHash, fileHash, fileName, totalChunks } = req.body;
 
+    console.log(`开始处理分片: ${fileName} - chunk ${chunkIndex}/${totalChunks}`);
+
     if (!req.file) {
+      console.error('未接收到文件分片');
       return res.status(400).json({
         success: false,
         message: '未接收到文件分片'
       });
     }
+
+    console.log(`分片文件大小: ${req.file.size} bytes, 路径: ${req.file.path}`);
 
     // 验证分片哈希
     const chunkBuffer = await fs.readFile(req.file.path);
@@ -150,7 +189,8 @@ app.post('/api/upload-chunk', upload.single('chunk'), async (req, res) => {
       });
     }
 
-    console.log(`接收到分片: ${fileName} - ${parseInt(chunkIndex) + 1}/${totalChunks}`);
+    const processingTime = Date.now() - startTime;
+    console.log(`分片上传成功: ${fileName} - chunk ${parseInt(chunkIndex) + 1}/${totalChunks} (${processingTime}ms)`);
 
     res.json({
       success: true,
@@ -158,14 +198,25 @@ app.post('/api/upload-chunk', upload.single('chunk'), async (req, res) => {
       data: {
         chunkIndex: parseInt(chunkIndex),
         fileHash,
-        fileName
+        fileName,
+        processingTime
       }
     });
   } catch (error) {
-    console.error('上传分片失败:', error);
+    const processingTime = Date.now() - startTime;
+    console.error(`上传分片失败 (${processingTime}ms):`, error);
+
+    // 如果是 multer 错误，提供更详细的信息
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: '分片文件过大'
+      });
+    }
+
     res.status(500).json({
       success: false,
-      message: '服务器错误'
+      message: '服务器错误: ' + error.message
     });
   }
 });
