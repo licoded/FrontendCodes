@@ -1,0 +1,107 @@
+/* Basic styling for the demo */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.demo-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.demo-section {
+  margin-bottom: 30px;
+  padding: 30px;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.demo-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.demo-title {
+  margin-top: 0;
+  color: #1890ff;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 40px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.demo-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #1890ff;
+  padding-bottom: 10px;
+}
+
+.performance-info {
+  margin-top: 40px;
+  padding: 25px;
+  background-color: #f0f8ff;
+  border-left: 4px solid #1890ff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.performance-info h3 {
+  color: #1890ff;
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+.performance-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.performance-info li {
+  margin-bottom: 8px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* 选择结果显示 */
+.demo-section p {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .demo-container {
+    padding: 15px;
+  }
+
+  .demo-section {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .demo-title {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+}
