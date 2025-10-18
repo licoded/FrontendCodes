@@ -96,7 +96,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
   }, [onChange, showSearch]);
 
   // 自定义下拉框内容
-  const popupRender = useCallback((menu: React.ReactElement) => {
+  const popupRender = useCallback(() => {
       if (!filteredOptions || filteredOptions.length === 0) {
         return <div style={{ padding: '8px', textAlign: 'center' as const }}>暂无数据</div>;
       }
