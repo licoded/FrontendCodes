@@ -159,6 +159,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       onSearch={showSearch ? setSearchValue : undefined}
       searchValue={showSearch ? searchValue : undefined}
       filterOption={false} // 我们使用自定义过滤逻辑
+      virtual={false}
     >
       {visibleOptions.map(option => (
         <Select.Option key={option.value} value={option.value}>
