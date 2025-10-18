@@ -22,7 +22,6 @@ const RegularSelect: React.FC<RegularSelectProps> = ({ options, style, placehold
         option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ||
         option?.value?.toString().toLowerCase().includes(input.toLowerCase())
       }
-      virtual={false}
     >
       {options.map(option => (
         <Select.Option key={option.value} value={option.value}>
