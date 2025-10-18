@@ -88,13 +88,11 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       return filteredOptions?.slice(startIndex, endIndex) || [];
     }, [filteredOptions, startIndex, endIndex]);
 
-  // 下拉框滚动事件处理 - 使用 RAF 优化
+  // 下拉框滚动事件处理
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-      const scrollTop = e.currentTarget.scrollTop;
-      // 使用 requestAnimationFrame 来优化滚动性能
-      window.requestAnimationFrame(() => {
-        setScrollTop(scrollTop);
-      });
+      // 直接同步更新 scrollTop，避免 RAF 延迟导致快速拖动滚动条时出现空白
+      // 虚拟列表的计算很轻量，不需要 RAF 节流
+      setScrollTop(e.currentTarget.scrollTop);
     }, []);
 
   // 处理选项点击
