@@ -84,6 +84,17 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       setScrollTop(e.currentTarget.scrollTop);
     }, []);
 
+  // 处理选项点击
+  const handleOptionClick = useCallback((optionValue: string | number) => {
+    if (onChange) {
+      onChange(optionValue);
+    }
+    setOpen(false); // 选择后关闭下拉框
+    if (showSearch) {
+      setSearchValue(''); // 清空搜索
+    }
+  }, [onChange, showSearch]);
+
   // 自定义下拉框内容
   const popupRender = useCallback((menu: React.ReactElement) => {
       if (!filteredOptions || filteredOptions.length === 0) {
@@ -94,16 +105,13 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
         <div
           style={{
             maxHeight: visibleCount * itemHeight,
-            overflow: 'auto',
-            position: 'relative'
+            overflow: 'auto'
         }}
         onScroll={handleScroll}
       >
-        {/* 顶部占位元素 */}
-        <div style={{ height: startIndex * itemHeight }} />
-
-        {/* 可见区域的内容 */}
-        <div style={{ position: 'relative', height: totalHeight }}>
+        {/* 虚拟列表容器 - 使用总高度撑开滚动区域 */}
+        <div style={{ height: totalHeight, position: 'relative' }}>
+          {/* 渲染可见区域的选项 */}
           {visibleOptions.map((option, index) => (
           <div
             key={option.value}
@@ -133,18 +141,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
         </div>
       </div>
     );
-    }, [startIndex, itemHeight, totalHeight, visibleOptions, handleScroll, visibleCount, filteredOptions, searchValue]);
-
-  // 处理选项点击
-  const handleOptionClick = useCallback((optionValue: string | number) => {
-    if (onChange) {
-      onChange(optionValue);
-    }
-    setOpen(false); // 选择后关闭下拉框
-    if (showSearch) {
-      setSearchValue(''); // 清空搜索
-    }
-  }, [onChange, showSearch]);
+    }, [startIndex, itemHeight, totalHeight, visibleOptions, handleScroll, visibleCount, filteredOptions, handleOptionClick]);
 
   return (
     <Select
