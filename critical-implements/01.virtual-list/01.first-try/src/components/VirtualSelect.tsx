@@ -112,49 +112,54 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
         return <div style={{ padding: '8px', textAlign: 'center' as const }}>暂无数据</div>;
       }
 
+      // 计算偏移量 - 使用 transform 而不是绝对定位每个元素
+      const offsetY = startIndex * itemHeight;
+
       return (
         <div
           style={{
             maxHeight: visibleCount * itemHeight,
             overflow: 'auto',
-            willChange: 'scroll-position' // 提示浏览器优化滚动性能
+            position: 'relative'
         }}
         onScroll={handleScroll}
       >
-        {/* 虚拟列表容器 - 使用总高度撑开滚动区域 */}
-        <div style={{
-          height: totalHeight,
-          position: 'relative',
-          willChange: 'contents' // 提示浏览器内容会变化
-        }}>
-          {/* 渲染可见区域的选项 */}
-          {visibleOptions.map((option, index) => (
-          <div
-            key={option.value}
-            style={{
-              height: itemHeight,
-              position: 'absolute',
-              top: (startIndex + index) * itemHeight,
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 12px',
-              boxSizing: 'border-box' as const,
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              willChange: 'transform' // 优化位置变化
-            }}
-            onClick={() => handleOptionClick(option.value)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f5f5f5';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            {option.label}
+        {/* 外层容器 - 撑开滚动区域 */}
+        <div style={{ height: totalHeight, position: 'relative' }}>
+          {/* 内层容器 - 使用 translateY 整体移动，避免每个元素重新定位 */}
+          <div style={{
+            transform: `translateY(${offsetY}px)`,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            willChange: 'transform'
+          }}>
+            {/* 渲染可见区域的选项 - 使用正常文档流 */}
+            {visibleOptions.map((option) => (
+              <div
+                key={option.value}
+                style={{
+                  height: itemHeight,
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 12px',
+                  boxSizing: 'border-box' as const,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onClick={() => handleOptionClick(option.value)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                {option.label}
+              </div>
+            ))}
           </div>
-        ))}
         </div>
       </div>
     );
