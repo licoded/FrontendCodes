@@ -5,6 +5,7 @@ interface VirtualSelectProps {
   options: { value: string | number; label: React.ReactNode }[];
   itemHeight?: number;
   visibleCount?: number;
+  overscan?: number; // 缓冲区数量，上下额外渲染的元素数量
   style?: React.CSSProperties;
   placeholder?: string;
   value?: any;
@@ -17,6 +18,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
   options,
   itemHeight = 32,
   visibleCount = 10,
+  overscan = 5, // 默认上下各额外渲染5个元素
   style,
   placeholder,
   value,
@@ -57,14 +59,21 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
     }
   }, [showSearch]);
 
-  // 计算虚拟列表的起始和结束索引
+  // 计算虚拟列表的起始和结束索引（带缓冲区）
   const { startIndex, endIndex, totalHeight } = useMemo(() => {
     if (!filteredOptions || filteredOptions.length === 0) {
       return { startIndex: 0, endIndex: 0, totalHeight: 0 };
     }
 
-    const start = Math.floor(scrollTop / itemHeight);
-    const end = Math.min(start + visibleCount, filteredOptions.length);
+    // 计算可见区域的起始索引
+    const visibleStart = Math.floor(scrollTop / itemHeight);
+
+    // 添加缓冲区：向上扩展 overscan 个，向下扩展 overscan 个
+    const start = Math.max(0, visibleStart - overscan);
+    const end = Math.min(
+      visibleStart + visibleCount + overscan,
+      filteredOptions.length
+    );
     const total = filteredOptions.length * itemHeight;
 
     return {
@@ -72,7 +81,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       endIndex: end,
       totalHeight: total
     };
-  }, [scrollTop, itemHeight, visibleCount, filteredOptions]);
+  }, [scrollTop, itemHeight, visibleCount, filteredOptions, overscan]);
 
   // 可见区域的数据
   const visibleOptions = useMemo(() => {
