@@ -18,7 +18,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
   options,
   itemHeight = 32,
   visibleCount = 10,
-  overscan = 5, // 默认上下各额外渲染5个元素
+  overscan = 10, // 增加默认缓冲区到10，减少空白出现
   style,
   placeholder,
   value,
@@ -88,9 +88,13 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       return filteredOptions?.slice(startIndex, endIndex) || [];
     }, [filteredOptions, startIndex, endIndex]);
 
-  // 下拉框滚动事件处理
+  // 下拉框滚动事件处理 - 使用 RAF 优化
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-      setScrollTop(e.currentTarget.scrollTop);
+      const scrollTop = e.currentTarget.scrollTop;
+      // 使用 requestAnimationFrame 来优化滚动性能
+      window.requestAnimationFrame(() => {
+        setScrollTop(scrollTop);
+      });
     }, []);
 
   // 处理选项点击
@@ -114,12 +118,17 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
         <div
           style={{
             maxHeight: visibleCount * itemHeight,
-            overflow: 'auto'
+            overflow: 'auto',
+            willChange: 'scroll-position' // 提示浏览器优化滚动性能
         }}
         onScroll={handleScroll}
       >
         {/* 虚拟列表容器 - 使用总高度撑开滚动区域 */}
-        <div style={{ height: totalHeight, position: 'relative' }}>
+        <div style={{
+          height: totalHeight,
+          position: 'relative',
+          willChange: 'contents' // 提示浏览器内容会变化
+        }}>
           {/* 渲染可见区域的选项 */}
           {visibleOptions.map((option, index) => (
           <div
@@ -134,7 +143,8 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
               padding: '0 12px',
               boxSizing: 'border-box' as const,
               cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              willChange: 'transform' // 优化位置变化
             }}
             onClick={() => handleOptionClick(option.value)}
             onMouseEnter={(e) => {
