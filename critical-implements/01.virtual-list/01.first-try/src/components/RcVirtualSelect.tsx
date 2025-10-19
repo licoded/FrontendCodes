@@ -36,10 +36,9 @@ const RcVirtualSelect: React.FC<RcVirtualSelectProps> = ({
       return options?.filter(option => filterOption(searchValue, option)) || [];
     }
 
-    // 默认过滤逻辑
+    // 默认过滤逻辑 - 只搜索 label
     return options?.filter(option =>
-      option.label?.toString().toLowerCase().includes(searchValue.toLowerCase()) ||
-      option.value?.toString().toLowerCase().includes(searchValue.toLowerCase())
+      option.label?.toString().toLowerCase().includes(searchValue.toLowerCase())
     ) || [];
   }, [options, searchValue, showSearch, filterOption]);
 

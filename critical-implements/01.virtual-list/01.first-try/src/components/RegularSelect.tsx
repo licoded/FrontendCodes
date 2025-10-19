@@ -19,8 +19,8 @@ const RegularSelect: React.FC<RegularSelectProps> = ({ options, style, placehold
       onChange={onChange}
       showSearch={showSearch}
       filterOption={(input, option) =>
-        option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ||
-        option?.value?.toString().toLowerCase().includes(input.toLowerCase())
+        // 只搜索 children (label)，不搜索 value
+        option?.children?.toString().toLowerCase().includes(input.toLowerCase())
       }
     >
       {options.map(option => (
