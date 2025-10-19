@@ -42,3 +42,12 @@ The project uses a modular TypeScript setup:
 - ESLint is configured with modern flat config format
 - Virtual list implementation is the primary focus but not yet implemented
 - CSS/styling approach not yet established (index.css is empty)
+
+## Git Commit Guidelines
+
+- Commit changes promptly when:
+  - Changes accumulate to a significant size
+  - Starting new work with uncommitted changes
+  - Requested by Claude Code
+- Always commit modifications to CLAUDE.md separately from other changes
+- Include clear, descriptive commit messages explaining the "why" of changes

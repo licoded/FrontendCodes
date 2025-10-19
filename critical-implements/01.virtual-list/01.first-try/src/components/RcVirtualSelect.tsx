@@ -73,10 +73,16 @@ const RcVirtualSelect: React.FC<RcVirtualSelectProps> = ({
       return <div style={{ padding: '8px', textAlign: 'center' as const }}>暂无数据</div>;
     }
 
+    // 动态计算高度：最大不超过 listHeight，最小显示所有项
+    const dynamicHeight = Math.min(
+      listHeight,
+      Math.max(itemHeight, filteredOptions.length * itemHeight)
+    );
+
     return (
       <VirtualList
         data={filteredOptions}
-        height={listHeight}
+        height={dynamicHeight}
         itemHeight={itemHeight}
         itemKey="value"
       >
