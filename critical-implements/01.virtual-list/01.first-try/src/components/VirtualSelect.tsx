@@ -8,10 +8,10 @@ interface VirtualSelectProps {
   overscan?: number; // 缓冲区数量，上下额外渲染的元素数量
   style?: React.CSSProperties;
   placeholder?: string;
-  value?: any;
-  onChange?: (value: any) => void;
+  value?: string | number;
+  onChange?: (value: string | number) => void;
   showSearch?: boolean;
-  filterOption?: (input: string, option: any) => boolean;
+  filterOption?: (input: string, option: { value: string | number; label: React.ReactNode }) => boolean;
 }
 
 const VirtualSelect: React.FC<VirtualSelectProps> = ({
@@ -180,7 +180,9 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
       filterOption={false} // 我们使用自定义过滤逻辑
       virtual={false}
     >
-      {visibleOptions.map(option => (
+      {/* 这些 Option 不会被渲染，因为我们使用了 popupRender */}
+      {/* 但需要保留以支持 value 的显示 */}
+      {options.map(option => (
         <Select.Option key={option.value} value={option.value}>
           {option.label}
         </Select.Option>

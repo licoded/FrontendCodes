@@ -127,7 +127,9 @@ const RcVirtualSelect: React.FC<RcVirtualSelectProps> = ({
       filterOption={false} // 我们使用自定义过滤逻辑
       virtual={false} // 我们使用 rc-virtual-list 自己实现虚拟滚动
     >
-      {filteredOptions.map(option => (
+      {/* 这些 Option 不会被渲染，因为我们使用了 popupRender */}
+      {/* 但需要保留以支持 value 的显示 */}
+      {options.map(option => (
         <Select.Option key={option.value} value={option.value}>
           {option.label}
         </Select.Option>

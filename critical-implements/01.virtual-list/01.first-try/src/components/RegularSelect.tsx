@@ -5,8 +5,8 @@ interface RegularSelectProps {
   options: { value: string | number; label: React.ReactNode }[];
   style?: React.CSSProperties;
   placeholder?: string;
-  value?: any;
-  onChange?: (value: any) => void;
+  value?: string | number;
+  onChange?: (value: string | number) => void;
   showSearch?: boolean;
 }
 
