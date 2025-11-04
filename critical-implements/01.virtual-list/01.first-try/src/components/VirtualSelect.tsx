@@ -14,6 +14,10 @@ interface VirtualSelectProps {
   filterOption?: (input: string, option: { value: string | number; label: React.ReactNode }) => boolean;
 }
 
+const defaultOptionFilterFunc = (searchValue: string, option: { value: string | number; label: React.ReactNode }) => {
+  return option.label?.toString().toLowerCase().includes(searchValue.toLowerCase()); 
+}
+
 const VirtualSelect: React.FC<VirtualSelectProps> = ({
   options,
   itemHeight = 32,
@@ -24,7 +28,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
   value,
   onChange,
   showSearch = false,
-  filterOption
+  filterOption = defaultOptionFilterFunc,
 }) => {
   const [scrollTop, setScrollTop] = useState(0);
   const [open, setOpen] = useState(false);
@@ -33,15 +37,7 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
   // 过滤选项
   const filteredOptions = useMemo(() => {
     if (!searchValue || !showSearch) return options || [];
-
-    if (filterOption) {
-      return options?.filter(option => filterOption(searchValue, option)) || [];
-    }
-
-    // 默认过滤逻辑 - 只搜索 label
-    return options?.filter(option =>
-      option.label?.toString().toLowerCase().includes(searchValue.toLowerCase())
-    ) || [];
+    return options?.filter(option => filterOption(searchValue, option)) || [];
   }, [options, searchValue, showSearch, filterOption]);
 
   // 当搜索值改变时重置滚动位置
