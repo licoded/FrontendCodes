@@ -117,17 +117,14 @@ const VirtualSelect: React.FC<VirtualSelectProps> = ({
             overflow: 'auto',
             position: 'relative'
         }}
+        className='no-scrollbar'
         onScroll={handleScroll}
       >
         {/* 外层容器 - 撑开滚动区域 */}
-        <div style={{ height: totalHeight, position: 'relative' }}>
+        <div style={{ height: totalHeight }}>
           {/* 内层容器 - 使用 translateY 整体移动，避免每个元素重新定位 */}
           <div style={{
             transform: `translateY(${offsetY}px)`,
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
             willChange: 'transform'
           }}>
             {/* 渲染可见区域的选项 - 使用正常文档流 */}
